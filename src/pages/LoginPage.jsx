@@ -8,12 +8,12 @@ function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (username.startsWith("./admin")) {
-      window.open("http://localhost:5174", "_blank");
-    } else if (username.startsWith("./lib")) {
+    if (username == "./admin") {
       window.open("http://localhost:5175", "_blank");
+    } else if (username == "./lib") {
+      window.open("http://localhost:5176", "_blank");
     } else {
-      alert("Invalid username prefix. Use 'admin' or 'lib'");
+      alert("Invalied username or password");
     }
   };
 
