@@ -3,6 +3,19 @@ import { Eye, EyeOff } from "lucide-react";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [username, setUsername] = React.useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (username.startsWith("./admin")) {
+      window.open("http://localhost:5174", "_blank");
+    } else if (username.startsWith("./lib")) {
+      window.open("http://localhost:5175", "_blank");
+    } else {
+      alert("Invalid username prefix. Use 'admin' or 'lib'");
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 font-courier">
@@ -30,7 +43,7 @@ function LoginPage() {
           </h2>
           <hr />
 
-          <form className="space-y-6 mt-10">
+          <form className="space-y-6 mt-10" onSubmit={handleSubmit}>
             <div>
               <label
                 htmlFor="username"
@@ -44,6 +57,7 @@ function LoginPage() {
                 autoComplete="username"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 placeholder="Enter your username"
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 
