@@ -9,9 +9,9 @@ function LoginPage() {
     e.preventDefault();
 
     if (username == "./admin") {
-      window.open("http://localhost:5175", "_blank");
+      window.location.href = "http://localhost:5175";
     } else if (username == "./lib") {
-      window.open("http://localhost:5176", "_blank");
+      window.location.href = "http://localhost:5176";
     } else {
       alert("Invalied username or password");
     }
