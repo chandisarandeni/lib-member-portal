@@ -96,14 +96,9 @@ function LoginPage() {
 
           <div className="text-sm text-center text-gray-600 mt-6 space-y-1">
             <p>
-              <a href="#" className="text-blue-600 hover:underline">
-                Forgot password?
-              </a>
-            </p>
-            <p>
-              Don’t have an account?{" "}
-              <a href="#" className="text-purple-600 hover:underline">
-                Signup
+              Forgot Password ?
+              <a href="#" className="text-blue-600 hover:underline ml-2">
+                click here
               </a>
             </p>
           </div>
