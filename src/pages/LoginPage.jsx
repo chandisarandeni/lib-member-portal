@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -9,12 +10,19 @@ function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (username == "./admin") {
-      window.location.href = "http://localhost:5175";
-    } else if (username == "./lib") {
-      window.location.href = "http://localhost:5176";
+    // check if blank
+    if ((username && password) === "") {
+      toast.error("Enter username and password");
     } else {
-      alert("Invalied username or password");
+      // check if username is admin or lib
+      if (username == "./admin") {
+        window.location.href = "http://localhost:5175";
+      } else if (username == "./lib") {
+        window.location.href = "http://localhost:5176";
+      } else {
+        // if username is not admin or lib, show error
+        toast.error("Invalid username or password");
+      }
     }
   };
 
