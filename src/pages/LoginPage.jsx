@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
 function LoginPage() {
@@ -96,10 +97,13 @@ function LoginPage() {
 
           <div className="text-sm text-center text-gray-600 mt-6 space-y-1">
             <p>
-              Forgot Password ?
-              <a href="#" className="text-blue-600 hover:underline ml-2">
+              Forgot Password?
+              <Link
+                to="/forgot-password"
+                className="text-blue-600 hover:underline ml-2"
+              >
                 click here
-              </a>
+              </Link>
             </p>
           </div>
         </div>
