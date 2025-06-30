@@ -220,7 +220,7 @@ const Main = () => {
             <div className="flex justify-between items-center p-5 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-800">Books List</h3>
               <div className="flex gap-2">
-                <button onClick={() => {navigate('/add-books')}} className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors">
+                <button onClick={() => {navigate('/dashboard/add-books')}} className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition-colors">
                   Add New Book
                 </button>
                 <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors">
