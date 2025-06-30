@@ -295,7 +295,15 @@ const Main = () => {
           {/* Overdue Books */}
           <div className="xl:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="p-5 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">Overdue Book List</h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-800">Overdue Book List</h3>
+                <button
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                  onClick={() => navigate('/dashboard/overdue-books')}
+                >
+                  View All
+                </button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">

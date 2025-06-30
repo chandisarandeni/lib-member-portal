@@ -8,6 +8,10 @@ import AllBooks from "../AllBooks";
 import Profile from "../Profile";
 import OverdueBooks from "../OverdueBooks";
 import { Route, Routes, Link, NavLink } from "react-router-dom";
+import { LuLayoutDashboard } from "react-icons/lu";
+import { RiBookShelfFill } from "react-icons/ri";
+import { FaRegCalendarTimes, FaRegUser } from "react-icons/fa";
+import { ImProfile } from "react-icons/im";
 
 const Dashboard = () => {
   const dashboardicon = (
@@ -69,11 +73,11 @@ const Dashboard = () => {
   );
 
   const sidebarLinks = [
-    { name: "Dashboard", path: "/dashboard", icon: dashboardicon },
-    { name: "Books", path: "/dashboard/all-books", icon: overviewicon },
-    { name: "Users", path: "/dashboard/all-users", icon: chaticon },
-    { name: "Overdue Books", path: "/dashboard/overdue-books", icon: chaticon },
-    { name: "profile", path: "/dashboard/profile", icon: chaticon },
+    { name: "Dashboard", path: "/dashboard", icon: <LuLayoutDashboard /> },
+    { name: "Books", path: "/dashboard/all-books", icon: <RiBookShelfFill /> },
+    { name: "Users", path: "/dashboard/all-users", icon: <FaRegUser /> },
+    { name: "Overdue Books", path: "/dashboard/overdue-books", icon: <FaRegCalendarTimes /> },
+    { name: "profile", path: "/dashboard/profile", icon: <ImProfile /> },
   ];
 
   return (
