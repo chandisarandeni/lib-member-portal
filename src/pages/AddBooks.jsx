@@ -21,7 +21,6 @@ const AddBooks = () => {
   const [coverImage, setCoverImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [errors, setErrors] = useState({})
-  const navigate = useNavigate()
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -137,7 +136,7 @@ const AddBooks = () => {
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <button 
-              onClick={() => {navigate('/dashboard')}} 
+              
               className="text-gray-500 hover:text-gray-700 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

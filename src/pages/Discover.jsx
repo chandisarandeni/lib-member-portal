@@ -42,11 +42,11 @@ const categories = [
   }
 ]
 
-const Main = () => {
+const Discover = () => {
   return (
-    <div className="min-h-screen bg-[#f8f6ed] px-8 py-4">
+    <div className="min-h-screen bg-[#f8f6ed] px-6 py-8">
       {/* Search Bar */}
-      <div className="w-full mb-10">
+      <div className="max-w-4xl mx-auto mb-10">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Discover</h1>
         <div className="flex gap-3 items-center bg-white rounded-xl shadow px-4 py-3">
           <select className="border-none bg-transparent text-gray-600 text-sm focus:ring-0">
@@ -68,7 +68,7 @@ const Main = () => {
       </div>
 
       {/* Book Recommendation */}
-      <div className="w-full mb-10">
+      <div className="max-w-4xl mx-auto mb-10">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Book Recommendation</h2>
           <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 font-medium">
@@ -80,18 +80,11 @@ const Main = () => {
         </div>
         <div className="flex gap-6 overflow-x-auto pb-2">
           {recommendations.map((book, idx) => (
-            <div
-              key={idx}
-              className="min-w-[200px] max-w-[400px] bg-white rounded-xl shadow p-4 flex flex-col items-center"
-            >
-              <img
-                src={book.image}
-                alt={book.title}
-                className="w-40 h-60 object-cover rounded-lg mb-4 shadow"
-              />
+            <div key={idx} className="min-w-[160px] max-w-[160px] bg-white rounded-xl shadow p-3 flex flex-col items-center">
+              <img src={book.image} alt={book.title} className="w-28 h-40 object-cover rounded-lg mb-3 shadow" />
               <div className="text-center">
-                <h3 className="text-base font-semibold text-gray-800">{book.title}</h3>
-                <p className="text-sm text-gray-500">{book.author}</p>
+                <h3 className="text-sm font-semibold text-gray-800">{book.title}</h3>
+                <p className="text-xs text-gray-500">{book.author}</p>
               </div>
             </div>
           ))}
@@ -99,16 +92,12 @@ const Main = () => {
       </div>
 
       {/* Book Category */}
-      <div className="w-full">
+      <div className="max-w-4xl mx-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Book Category</h2>
         <div className="flex gap-8 flex-wrap">
           {categories.map((cat, idx) => (
             <div key={idx} className="flex flex-col items-center min-w-[120px]">
-              <img
-                src={cat.image}
-                alt={cat.name}
-                className="w-44 h-56 object-cover rounded-lg mb-2 shadow"
-              />
+              <img src={cat.image} alt={cat.name} className="w-24 h-32 object-cover rounded-lg mb-2 shadow" />
               <span className="text-sm font-medium text-gray-700">{cat.name}</span>
             </div>
           ))}
@@ -118,4 +107,4 @@ const Main = () => {
   )
 }
 
-export default Main
+export default Discover
