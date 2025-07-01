@@ -8,10 +8,10 @@ import AllBooks from "../AllBooks";
 import Profile from "../Profile";
 import OverdueBooks from "../OverdueBooks";
 import { Route, Routes, Link, NavLink } from "react-router-dom";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { RiBookShelfFill } from "react-icons/ri";
-import { FaRegCalendarTimes, FaRegUser } from "react-icons/fa";
-import { ImProfile } from "react-icons/im";
+import MyBooks from "../MyBooks";
+import Favorites from "../Favorites";
+import MyProfile from "../MyProfile";
+import Help from "../Help";
 
 const Dashboard = () => {
   const dashboardicon = (
@@ -73,11 +73,12 @@ const Dashboard = () => {
   );
 
   const sidebarLinks = [
-    { name: "Dashboard", path: "/dashboard", icon: <LuLayoutDashboard /> },
-    { name: "Books", path: "/dashboard/all-books", icon: <RiBookShelfFill /> },
-    { name: "Users", path: "/dashboard/all-users", icon: <FaRegUser /> },
-    { name: "Overdue Books", path: "/dashboard/overdue-books", icon: <FaRegCalendarTimes /> },
-    { name: "profile", path: "/dashboard/profile", icon: <ImProfile /> },
+    { name: "Dashboard", path: "/", icon: dashboardicon },
+    { name: "My Books", path: "/all-books", icon: overviewicon },
+    { name: "profile", path: "/profile", icon: chaticon },
+    { name: "Favorites", path: "/favorites", icon: chaticon },
+    { name: "library", path: "/library", icon: chaticon },
+    { name: "Help", path: "/help", icon: chaticon },
   ];
 
   return (
@@ -94,6 +95,9 @@ const Dashboard = () => {
             />
           </a>
           <div className="flex items-center gap-5 text-gray-500 md:hidden">
+            <button className="border rounded-full text-sm px-4 py-1">
+              Logout
+            </button>
           </div>
         </div>
 
@@ -111,7 +115,7 @@ const Dashboard = () => {
                                 : "hover:bg-gray-100/90 border-white text-gray-700"
                             }`
               }
-              end={item.path === "/dashboard"}
+              end={item.path === "/"}
             >
               {item.icon}
               <p className="md:block hidden text-center">{item.name}</p>
@@ -123,7 +127,7 @@ const Dashboard = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Header for larger screens */}
-        <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
+        <div className="hidden md:flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
           <div></div>
           <div className="flex items-center gap-5 text-gray-500">
             <p>Hi! Admin</p>
@@ -137,13 +141,15 @@ const Dashboard = () => {
         <div className="flex-1 overflow-auto">
           <Routes>
             <Route path="" element={<Main />} />
-            <Route path="add-books" element={<AddBooks />} />
-            <Route path="add-user" element={<AddUser />} />
-            <Route path="edit-book/:id" element={<EditBookModal />} />
-            <Route path="all-users" element={<AllUsers />} />
-            <Route path="all-books" element={<AllBooks />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="overdue-books" element={<OverdueBooks />} />
+            <Route path="/add-books" element={<AddBooks />} />
+            <Route path="/add-user" element={<AddUser />} />
+            <Route path="/edit-book/:id" element={<EditBookModal />} />
+            <Route path="/all-users" element={<AllUsers />} />
+            <Route path="/all-books" element={<MyBooks />} />
+            <Route path="/profile" element={<MyProfile />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/library" element={<AllBooks />} />
+            <Route path="/help" element={<Help />} />
           </Routes>
         </div>
       </div>
