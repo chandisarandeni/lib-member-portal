@@ -157,7 +157,7 @@ const MyProfile = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+                  className="flex-1 px-4 py-3 bg-[#8E552C] text-white rounded-lg font-medium hover:bg-[#B67242] transition-colors"
                 >
                   Save
                 </button>
@@ -166,7 +166,7 @@ const MyProfile = () => {
               <button
                 type="button"
                 onClick={handleEdit}
-                className="w-full px-4 py-3 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors"
+                className="w-full px-4 py-3 bg-[#8E552C] text-white rounded-lg font-medium hover:bg-[#B67242] transition-colors"
               >
                 Edit Profile
               </button>

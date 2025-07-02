@@ -57,7 +57,7 @@ const MyBooks = () => {
               onClick={() => setSelectedTab(tab)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 selectedTab === tab
-                  ? 'bg-indigo-500 text-white'
+                  ? 'bg-[#8E552C] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >

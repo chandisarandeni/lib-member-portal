@@ -12,6 +12,7 @@ import MyBooks from "../MyBooks";
 import Favorites from "../Favorites";
 import MyProfile from "../MyProfile";
 import Help from "../Help";
+import { assets } from "../../assets/assests";
 
 const Dashboard = () => {
   const dashboardicon = (
@@ -86,19 +87,14 @@ const Dashboard = () => {
       {/* Sidebar */}
       <div className="md:w-64 w-16 border-r border-gray-300 bg-white flex flex-col transition-all duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
+        <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-[#8E552C]">
           <a href="/">
             <img
               className="h-9"
-              src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/dummyLogo/dummyLogoColored.svg"
+              src={assets.logo}
               alt="dummyLogoColored"
             />
           </a>
-          <div className="flex items-center gap-5 text-gray-500 md:hidden">
-            <button className="border rounded-full text-sm px-4 py-1">
-              Logout
-            </button>
-          </div>
         </div>
 
         {/* Sidebar Links */}
@@ -111,7 +107,7 @@ const Dashboard = () => {
                 `flex items-center py-3 px-4 gap-3 transition-colors
                             ${
                               isActive
-                                ? "border-r-4 md:border-r-[6px] bg-indigo-500/10 border-indigo-500 text-indigo-500"
+                                ? "border-r-4 md:border-r-[6px] bg-indigo-500/10 border-[#8E552C] text-[#B67242]"
                                 : "hover:bg-gray-100/90 border-white text-gray-700"
                             }`
               }
@@ -126,17 +122,16 @@ const Dashboard = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Top Header for larger screens */}
-        <div className="hidden md:flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white">
+        {/* Top Header for all screens */}
+        <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-[#8E552C]">
           <div></div>
-          <div className="flex items-center gap-5 text-gray-500">
+          <div className="flex items-center gap-5 text-black">
             <p>Hi! Admin</p>
             <button className="border rounded-full text-sm px-4 py-1">
               Logout
             </button>
           </div>
         </div>
-
         {/* Main Dashboard Content */}
         <div className="flex-1 overflow-auto">
           <Routes>
