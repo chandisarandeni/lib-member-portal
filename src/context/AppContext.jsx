@@ -64,8 +64,20 @@ useEffect(() => {
 }, [selectedType]);
 
 
+const fetchPopularBooks = async () => {
+        try {
+            const url = "http://localhost:8080/api/v1/books/popular";
+            const response = await axios.get(url);
+             return response.data;
+        } catch (error) {
+            console.error("Error fetching popular books:", error);
+            return [];
+        }
+    }
+
+
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks}}>
             {children}
         </AppContext.Provider>
     );

@@ -1,29 +1,11 @@
-import React from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AppContext } from '../context/AppContext'
 
 
-const recommendations = [
-  {
-    title: 'The Psychology of Money',
-    author: 'Morgan Housel',
-    image: 'https://images-na.ssl-images-amazon.com/images/I/81H9b5HkJIL.jpg'
-  },
-  {
-    title: 'Company of One',
-    author: 'Paul Jarvis',
-    image: 'https://images-na.ssl-images-amazon.com/images/I/81l3rZK4lnL.jpg'
-  },
-  {
-    title: 'How Innovation Works',
-    author: 'Matt Ridley',
-    image: 'https://images-na.ssl-images-amazon.com/images/I/81w+3k4vQwL.jpg'
-  },
-  {
-    title: 'The Picture of Dorian Gray',
-    author: 'Oscar Wilde',
-    image: 'https://images-na.ssl-images-amazon.com/images/I/81AFgE3cK+L.jpg'
-  }
-]
+
+
+
 
 const categories = [
   {
@@ -45,10 +27,39 @@ const categories = [
 ]
 
 const Main = () => {
-
   const navigate = useNavigate()
+  const [recommendations, setRecommendations] = useState([])
+  const { fetchPopularBooks } = useContext(AppContext)
+  const sliderRef = useRef(null)
+  const [scrollX, setScrollX] = useState(0)
+
+  useEffect(() => {
+    fetchPopularBooks()
+      .then(data => {
+        setRecommendations(data)
+      })
+  }, [fetchPopularBooks])
+
+  // Slider controls
+  const scrollBy = (offset) => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: offset, behavior: 'smooth' })
+    }
+  }
+
+  // Track scroll position for disabling arrows
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollX(sliderRef.current.scrollLeft)
+    }
+    const slider = sliderRef.current
+    if (slider) {
+      slider.addEventListener('scroll', handleScroll)
+      return () => slider.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
   return (
-    
     <div className="min-h-screen bg-[#f8f6ed] px-8 py-4">
       {/* Search Bar */}
       <div className="w-full mb-10">
@@ -72,25 +83,65 @@ const Main = () => {
         </div>
       </div>
 
-      {/* Book Recommendation */}
-      <div className="w-full mb-10">
+      {/* Book Recommendation Slider */}
+      <div className="w-full mb-10 relative">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Book Recommendation</h2>
-          <button onClick={() => navigate('/library')} className="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 font-medium">
+          <button
+            onClick={() => navigate('/library')}
+            className="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 font-medium"
+          >
             View all
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
-        <div className="flex gap-6 overflow-x-auto pb-2">
+        {/* Blurred edges */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-10 z-10">
+          <div className="h-full w-full bg-gradient-to-r from-[#f8f6ed] to-transparent" />
+        </div>
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-10 z-10">
+          <div className="h-full w-full bg-gradient-to-l from-[#f8f6ed] to-transparent" />
+        </div>
+        {/* Slider Arrows */}
+        <button
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/80 rounded-full p-2 shadow hover:bg-white transition disabled:opacity-30"
+          style={{ display: recommendations.length > 4 ? 'block' : 'none' }}
+          onClick={() => scrollBy(-240 * 1)} // scroll by 1 card width
+          disabled={scrollX === 0}
+        >
+          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/80 rounded-full p-2 shadow hover:bg-white transition"
+          style={{ display: recommendations.length > 4 ? 'block' : 'none' }}
+          onClick={() => scrollBy(240 * 1)} // scroll by 1 card width
+        >
+          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <div
+          ref={sliderRef}
+          className="flex gap-6 overflow-x-auto pb-2 scrollbar-hide relative z-0 scroll-smooth"
+          style={{
+            scrollBehavior: 'smooth',
+            width: '992px', // 4 cards * 224px (w-56) + 3*gap-6 (24px*3=72px)
+            maxWidth: '100%',
+            margin: '0 auto',
+            overflowX: 'hidden'
+          }}
+        >
           {recommendations.map((book, idx) => (
             <div
               key={idx}
-              className="w-56 h-[370px] mx-auto bg-white rounded-xl shadow p-4 flex flex-col items-center"
+              className="w-56 h-[370px] flex-shrink-0 mx-auto bg-white rounded-xl shadow p-4 flex flex-col items-center"
             >
               <img
-                src={book.image}
+                src={book.imageUrl}
                 alt={book.title}
                 className="w-40 h-60 object-cover rounded-lg mb-4 shadow"
               />
