@@ -1,4 +1,6 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+
 
 const recommendations = [
   {
@@ -43,7 +45,10 @@ const categories = [
 ]
 
 const Main = () => {
+
+  const navigate = useNavigate()
   return (
+    
     <div className="min-h-screen bg-[#f8f6ed] px-8 py-4">
       {/* Search Bar */}
       <div className="w-full mb-10">
@@ -71,7 +76,7 @@ const Main = () => {
       <div className="w-full mb-10">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Book Recommendation</h2>
-          <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 font-medium">
+          <button onClick={() => navigate('/library')} className="flex items-center gap-1 text-sm text-gray-700 hover:text-green-700 font-medium">
             View all
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -82,14 +87,14 @@ const Main = () => {
           {recommendations.map((book, idx) => (
             <div
               key={idx}
-              className="min-w-[200px] max-w-[400px] bg-white rounded-xl shadow p-4 flex flex-col items-center"
+              className="w-56 h-[370px] mx-auto bg-white rounded-xl shadow p-4 flex flex-col items-center"
             >
               <img
                 src={book.image}
                 alt={book.title}
                 className="w-40 h-60 object-cover rounded-lg mb-4 shadow"
               />
-              <div className="text-center">
+              <div className="text-center flex-1 flex flex-col justify-end">
                 <h3 className="text-base font-semibold text-gray-800">{book.title}</h3>
                 <p className="text-sm text-gray-500">{book.author}</p>
               </div>
