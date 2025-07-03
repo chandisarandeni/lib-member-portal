@@ -142,11 +142,11 @@ const Main = () => {
             >
               <img
                 src={book.imageUrl}
-                alt={book.title}
+                alt={book.bookName}
                 className="w-40 h-60 object-cover rounded-lg mb-4 shadow"
               />
               <div className="text-center flex-1 flex flex-col justify-end">
-                <h3 className="text-base font-semibold text-gray-800">{book.title}</h3>
+                <h3 className="text-base font-semibold text-gray-800">{book.bookName}</h3>
                 <p className="text-sm text-gray-500">{book.author}</p>
               </div>
             </div>
