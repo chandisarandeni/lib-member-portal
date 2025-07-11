@@ -249,11 +249,22 @@ const fetchPopularBooks = async () => {
             // Return empty array instead of null to prevent component errors
             return [];
         }
+
+    }
+
+    const sendResetEmail = async (email) => {
+        try {
+            const response = await axios.post(`http://localhost:8080/api/v1/members/send-reset-password-link?email=${email}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error sending reset email:", error);
+            throw error;
+        }
     }
 
 
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember, getBorrowing}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember, getBorrowing, sendResetEmail}}>
             {children}
         </AppContext.Provider>
     );

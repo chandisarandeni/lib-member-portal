@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
 function ForgotPassword() {
   const [email, setEmail] = React.useState("");
+  const {sendResetEmail} = useContext(AppContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // You can replace this with actual password reset logic
     alert(`Password reset link sent to ${email}`);
+    sendResetEmail(email)
+      .then(response => {
+        console.log("Reset email sent successfully:", response);
+        alert("Password reset link sent to your email.");
+      })
+      .catch(error => {
+        console.error("Error sending reset email:", error);
+        alert("Failed to send password reset link. Please try again.");
+      });
   };
 
   return (

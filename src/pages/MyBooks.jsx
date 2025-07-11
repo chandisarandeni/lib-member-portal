@@ -49,37 +49,30 @@ const MyBooks = () => {
     fetchMyBorrowings()
   }, [user, getBorrowing, getRelatedMember])
 
-  // Helper function to determine book status
-  const getBookStatus = (book) => {
-    // Check various possible status field names
-    if (book.returnStatus) return book.returnStatus
-    if (book.status) return book.status
-    if (book.borrowingStatus) return book.borrowingStatus
-    
-    // Calculate status based on dates
-    if (book.returnDate || book.returnedDate || book.returned_date) {
-      return 'Returned'
-    }
-    
-    // Check if overdue (if there's a due date)
-    if (book.dueDate || book.due_date) {
-      const dueDate = new Date(book.dueDate || book.due_date)
-      const today = new Date()
-      if (today > dueDate) {
-        return 'Overdue'
-      }
-    }
-    
-    // Default to Borrowed if no return date
-    return 'Borrowed'
-  }
-
   const filteredBooks =
     selectedTab === 'All'
       ? myBorrowings
       : myBorrowings.filter(book => {
-          const status = getBookStatus(book)
-          return status === selectedTab
+          if (selectedTab === 'Returned') {
+            return book.returnStatus === 'returned' || book.returnStatus === 'RETURNED'
+          } else if (selectedTab === 'Borrowed') {
+            // Not returned AND not overdue (before or on return date)
+            if (book.returnStatus === 'not returned') {
+              const returnDate = new Date(book.returnDate)
+              const today = new Date()
+              return today <= returnDate
+            }
+            return false
+          } else if (selectedTab === 'Overdue') {
+            // Not returned AND past return date
+            if (book.returnStatus === 'not returned') {
+              const returnDate = new Date(book.returnDate)
+              const today = new Date()
+              return today > returnDate
+            }
+            return false
+          }
+          return true
         })
 
   return (
@@ -110,7 +103,7 @@ const MyBooks = () => {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Book Title</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Borrowed On</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Returned On</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Returned Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
@@ -166,42 +159,44 @@ const MyBooks = () => {
                       {book.bookAuthor || book.author || book.book?.author || 'Unknown Author'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {book.borrowingDate || book.borrowedDate || book.borrowed_date || '--'}
+                      {book.borrowingDate || '--'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {book.returnDate || book.returnedDate || book.returned_date ? 
-                        (book.returnDate || book.returnedDate || book.returned_date) : 
-                        <span className="text-gray-400">--</span>
-                      }
+                      {book.returnDate || <span className="text-gray-400">--</span>}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {(() => {
-                        const status = getBookStatus(book)
-                        switch(status) {
-                          case 'Returned':
-                            return (
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                                Returned
-                              </span>
-                            )
-                          case 'Borrowed':
-                            return (
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                                Borrowed
-                              </span>
-                            )
-                          case 'Overdue':
+                        // Use returnStatus with overdue logic
+                        const returnStatus = book.returnStatus
+                        if (returnStatus === 'returned' || returnStatus === 'RETURNED') {
+                          return (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                              Returned
+                            </span>
+                          )
+                        } else if (returnStatus === 'not returned') {
+                          // Check if overdue
+                          const returnDate = new Date(book.returnDate)
+                          const today = new Date()
+                          if (today > returnDate) {
                             return (
                               <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
                                 Overdue
                               </span>
                             )
-                          default:
+                          } else {
                             return (
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
-                                {status}
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                Borrowed
                               </span>
                             )
+                          }
+                        } else {
+                          return (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                              {returnStatus || 'Unknown'}
+                            </span>
+                          )
                         }
                       })()}
                     </td>
