@@ -173,9 +173,87 @@ const fetchPopularBooks = async () => {
     }
     }, [borrowedBooks])
 
+    const getBorrowing = async (memberId) => {
+        try {
+            console.log(`Fetching borrowings for member ID: ${memberId}`);
+            const url = `http://localhost:8080/api/v1/borrowings`;
+            const response = await axios.get(url);
+            
+            // Filter borrowings by member ID if memberId is provided
+            let borrowings = memberId 
+                ? response.data.filter(borrowing => 
+                    borrowing.memberId === memberId || borrowing.member_id === memberId
+                )
+                : response.data;
+            
+            console.log("Filtered Borrowings:", borrowings);
+            
+            // Fetch book details for each borrowing
+            if (borrowings && borrowings.length > 0) {
+                console.log(`Processing ${borrowings.length} borrowings to fetch book details...`);
+                const borrowingsWithBookDetails = await Promise.all(
+                    borrowings.map(async (borrowing) => {
+                        try {
+                            // Fetch book details using bookId from borrowing
+                            const bookId = borrowing.bookId || borrowing.book_id;
+                            if (bookId) {
+                                console.log(`Fetching book details for bookId: ${bookId}`);
+                                const bookResponse = await axios.get(`http://localhost:8080/api/v1/books/${bookId}`);
+                                const bookData = bookResponse.data;
+                                
+                                // Combine borrowing data with book details
+                                return {
+                                    ...borrowing,
+                                    // Book details
+                                    bookTitle: bookData.bookName || bookData.title || 'Unknown Title',
+                                    bookAuthor: bookData.author || 'Unknown Author',
+                                    bookCover: bookData.imageUrl || bookData.cover || null,
+                                    bookCategory: bookData.category || 'Uncategorized',
+                                    // Keep original book reference
+                                    book: bookData
+                                };
+                            }
+                            // Return original borrowing with default values if no bookId
+                            return {
+                                ...borrowing,
+                                bookTitle: 'Unknown Title',
+                                bookAuthor: 'Unknown Author',
+                                bookCover: null,
+                                bookCategory: 'Uncategorized'
+                            };
+                        } catch (bookError) {
+                            console.error(`Error fetching book details for bookId ${borrowing.bookId || borrowing.book_id}:`, bookError);
+                            
+                            // Return borrowing with fallback book details if book fetch fails
+                            return {
+                                ...borrowing,
+                                bookTitle: `Book ID: ${borrowing.bookId || borrowing.book_id}`,
+                                bookAuthor: 'Unknown Author',
+                                bookCover: null,
+                                bookCategory: 'Uncategorized',
+                                bookFetchError: true
+                            };
+                        }
+                    })
+                );
+                
+                console.log("Borrowings with Book Details:", borrowingsWithBookDetails);
+                return borrowingsWithBookDetails;
+            }
+            
+            return borrowings;
+            
+        } catch (error) {
+            console.error("Error fetching borrowing data:", error);
+            
+            // Return empty array instead of null to prevent component errors
+            return [];
+        }
+    }
+
 
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember, getBorrowing}}>
             {children}
         </AppContext.Provider>
     );

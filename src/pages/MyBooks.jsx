@@ -1,52 +1,86 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../context/AppContext'
 
 
-const booksData = [
-  {
-    id: 1,
-    title: 'The Psychology of Money',
-    author: 'Morgan Housel',
-    borrowDate: '2024-06-01',
-    returnDate: '2024-06-10',
-    status: 'Returned'
-  },
-  {
-    id: 2,
-    title: 'Company of One',
-    author: 'Paul Jarvis',
-    borrowDate: '2024-06-05',
-    returnDate: null,
-    status: 'Borrowed'
-  },
-  {
-    id: 3,
-    title: 'How Innovation Works',
-    author: 'Matt Ridley',
-    borrowDate: '2024-05-20',
-    returnDate: '2024-06-01',
-    status: 'Returned'
-  },
-  {
-    id: 4,
-    title: 'The Picture of Dorian Gray',
-    author: 'Oscar Wilde',
-    borrowDate: '2024-06-10',
-    returnDate: null,
-    status: 'Overdue'
-  }
-]
+
 
 const statusTabs = ['All', 'Borrowed', 'Returned', 'Overdue']
 
 const MyBooks = () => {
   const [selectedTab, setSelectedTab] = useState('All')
-  const {borrowedBooks} = useContext(AppContext)
+  const [myBorrowings, setMyBorrowings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const {getBorrowing, user, getRelatedMember} = useContext(AppContext)
+  
+  // Fetch user's borrowings on component mount
+  useEffect(() => {
+    const fetchMyBorrowings = async () => {
+      try {
+        setLoading(true)
+        if (user?.email) {
+          console.log('Fetching borrowings for user:', user.email)
+          // Get user's member info first
+          const memberInfo = await getRelatedMember(user.email)
+          if (memberInfo?.id) {
+            console.log('Member info found:', memberInfo)
+            // Get borrowings for this member
+            const borrowings = await getBorrowing(memberInfo.id)
+            console.log('Raw borrowings data:', borrowings)
+            if (borrowings && borrowings.length > 0) {
+              console.log('Sample borrowing object:', borrowings[0])
+            }
+            setMyBorrowings(borrowings || [])
+          } else {
+            console.log('No member info found for user')
+            setMyBorrowings([])
+          }
+        } else {
+          console.log('No user email available')
+          setMyBorrowings([])
+        }
+      } catch (error) {
+        console.error('Error fetching borrowings:', error)
+        setMyBorrowings([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMyBorrowings()
+  }, [user, getBorrowing, getRelatedMember])
+
+  // Helper function to determine book status
+  const getBookStatus = (book) => {
+    // Check various possible status field names
+    if (book.returnStatus) return book.returnStatus
+    if (book.status) return book.status
+    if (book.borrowingStatus) return book.borrowingStatus
+    
+    // Calculate status based on dates
+    if (book.returnDate || book.returnedDate || book.returned_date) {
+      return 'Returned'
+    }
+    
+    // Check if overdue (if there's a due date)
+    if (book.dueDate || book.due_date) {
+      const dueDate = new Date(book.dueDate || book.due_date)
+      const today = new Date()
+      if (today > dueDate) {
+        return 'Overdue'
+      }
+    }
+    
+    // Default to Borrowed if no return date
+    return 'Borrowed'
+  }
 
   const filteredBooks =
     selectedTab === 'All'
-      ? borrowedBooks
-      : borrowedBooks.filter(book => book.status === selectedTab)
+      ? myBorrowings
+      : myBorrowings.filter(book => {
+          const status = getBookStatus(book)
+          return status === selectedTab
+        })
 
   return (
     <div className="min-h-screen bg-[#f8f6ed] px-8 py-8">
@@ -81,40 +115,99 @@ const MyBooks = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredBooks.length === 0 && (
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-gray-400">
+                    Loading your books...
+                  </td>
+                </tr>
+              ) : filteredBooks.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-8 text-gray-400">
                     No books found.
                   </td>
                 </tr>
+              ) : (
+                filteredBooks.map(book => (
+                  <tr key={book.id || book.borrowingId || book.borrowing_id}>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      <div className="flex items-center">
+                        {/* Book Cover Image */}
+                        {book.bookCover && (
+                          <img 
+                            src={book.bookCover} 
+                            alt={book.bookTitle}
+                            className="w-10 h-12 object-cover rounded mr-3"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        <div>
+                          <div className="font-medium flex items-center gap-2">
+                            {book.bookTitle || book.title || book.book?.bookName || 'Unknown Title'}
+                            {/* Show warning icon if book fetch failed */}
+                            {book.bookFetchError && (
+                              <span className="text-yellow-500 text-sm" title="Book details could not be loaded">
+                                ⚠️
+                              </span>
+                            )}
+                          </div>
+                          {/* Book Category */}
+                          {book.bookCategory && book.bookCategory !== 'Uncategorized' && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {book.bookCategory}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {book.bookAuthor || book.author || book.book?.author || 'Unknown Author'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {book.borrowingDate || book.borrowedDate || book.borrowed_date || '--'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {book.returnDate || book.returnedDate || book.returned_date ? 
+                        (book.returnDate || book.returnedDate || book.returned_date) : 
+                        <span className="text-gray-400">--</span>
+                      }
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {(() => {
+                        const status = getBookStatus(book)
+                        switch(status) {
+                          case 'Returned':
+                            return (
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                Returned
+                              </span>
+                            )
+                          case 'Borrowed':
+                            return (
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                Borrowed
+                              </span>
+                            )
+                          case 'Overdue':
+                            return (
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                Overdue
+                              </span>
+                            )
+                          default:
+                            return (
+                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                {status}
+                              </span>
+                            )
+                        }
+                      })()}
+                    </td>
+                  </tr>
+                ))
               )}
-              {filteredBooks.map(book => (
-                <tr key={book.bookId}>
-                  <td className="px-4 py-3 text-sm text-gray-900">{book.title}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{book.author}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{book.borrowDate}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
-                    {book.returnDate ? book.returnDate : <span className="text-gray-400">--</span>}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {book.returnStatus === 'Returned' && (
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
-                        Returned
-                      </span>
-                    )}
-                    {book.returnStatus === 'Borrowed' && (
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                        Borrowed
-                      </span>
-                    )}
-                    {book.returnStatus === 'Overdue' && (
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                        Overdue
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
             </tbody>
           </table>
         </div>
