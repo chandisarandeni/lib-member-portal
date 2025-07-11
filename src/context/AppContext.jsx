@@ -78,14 +78,9 @@ const ContextProvider = ({ children }) => {
             const allMembers = await axios.get(`http://localhost:8080/api/v1/members`);
             const memberData = allMembers.data.find(member => member.email === email);
             if (memberData) {
-                return {
-                    id: memberData.memberId,
-                    email: memberData.email,
-                    name: memberData.name,
-                    phone: memberData.phoneNumber,
-                    address: memberData.address,
-                };
-                
+                // Return ALL member data, not just selected fields
+                console.log("Full member data from backend:", memberData);
+                return memberData; // Return the complete member object
             }
         } catch (error) {
             console.error("Error fetching member data:", error);
