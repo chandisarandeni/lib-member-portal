@@ -19,23 +19,35 @@ const MyBooks = () => {
         setLoading(true)
         if (user?.email) {
           console.log('Fetching borrowings for user:', user.email)
+          console.log('User object:', user)
+          
           // Get user's member info first
           const memberInfo = await getRelatedMember(user.email)
-          if (memberInfo?.id) {
+          console.log('Member info result:', memberInfo)
+          
+          if (memberInfo?.id || memberInfo?.memberId) {
             console.log('Member info found:', memberInfo)
+            const memberId = memberInfo.id || memberInfo.memberId
+            console.log('Using member ID:', memberId)
+            
             // Get borrowings for this member
-            const borrowings = await getBorrowing(memberInfo.id)
+            const borrowings = await getBorrowing(memberId)
             console.log('Raw borrowings data:', borrowings)
             if (borrowings && borrowings.length > 0) {
               console.log('Sample borrowing object:', borrowings[0])
             }
             setMyBorrowings(borrowings || [])
           } else {
-            console.log('No member info found for user')
+            console.log('No member info found for user email:', user.email)
+            console.log('This could mean:')
+            console.log('1. Email mismatch between login and member database')
+            console.log('2. Member not found in database')
+            console.log('3. API endpoint issue')
             setMyBorrowings([])
           }
         } else {
           console.log('No user email available')
+          console.log('User object:', user)
           setMyBorrowings([])
         }
       } catch (error) {

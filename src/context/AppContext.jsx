@@ -75,15 +75,38 @@ const ContextProvider = ({ children }) => {
 
     const getRelatedMember = async (email) => {
         try {
+            console.log('Getting related member for email:', email);
             const allMembers = await axios.get(`http://localhost:8080/api/v1/members`);
-            const memberData = allMembers.data.find(member => member.email === email);
+            console.log('All members received:', allMembers.data);
+            console.log('Number of members:', allMembers.data?.length);
+            
+            if (!allMembers.data || allMembers.data.length === 0) {
+                console.log('No members data received from API');
+                return null;
+            }
+            
+            // Normalize email for comparison (trim and lowercase)
+            const normalizedSearchEmail = email.trim().toLowerCase();
+            console.log('Searching for normalized email:', normalizedSearchEmail);
+            
+            // Log all member emails for debugging
+            console.log('Available member emails:', allMembers.data.map(m => m.email));
+            
+            const memberData = allMembers.data.find(member => 
+                member.email && member.email.trim().toLowerCase() === normalizedSearchEmail
+            );
+            
             if (memberData) {
-                // Return ALL member data, not just selected fields
-                console.log("Full member data from backend:", memberData);
+                console.log('Member found:', memberData);
                 return memberData; // Return the complete member object
+            } else {
+                console.log('No member found with email:', email);
+                console.log('Available emails in database:', allMembers.data.map(m => m.email));
+                return null;
             }
         } catch (error) {
-            console.error("Error fetching member data:", error);
+            console.error("Error fetching related member:", error);
+            console.error("Error details:", error.response?.data);
             return null;
         }
     }
