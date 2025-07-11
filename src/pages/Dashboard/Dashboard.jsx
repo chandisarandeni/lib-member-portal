@@ -1,13 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Main from "../Main";
 import AddBooks from "../AddBooks";
 import AddUser from "../AddUser";
 import EditBookModal from "../../components/EditBookModal";
 import AllUsers from "../AllUsers";
 import AllBooks from "../AllBooks";
-import Profile from "../Profile";
 import OverdueBooks from "../OverdueBooks";
-import { Route, Routes, Link, NavLink } from "react-router-dom";
+import { Route, Routes, Link, NavLink, useNavigate } from "react-router-dom";
 import MyBooks from "../MyBooks";
 import Favorites from "../Favorites";
 import MyProfile from "../MyProfile";
@@ -83,7 +82,28 @@ const Dashboard = () => {
     { name: "Help", path: "/dashboard/help", icon: chaticon },
   ];
 
-  const {user, logout} = useContext(AppContext)
+  const {user, logout, getRelatedMember} = useContext(AppContext)
+  const navigate = useNavigate()
+  const [memberData, setMemberData] = useState(null);
+  
+
+  const handleLogout = () => {
+    logout();
+    // Optionally redirect to login page or show a message
+    navigate("/");
+  }
+
+  useEffect(() => {
+    const fetchMemberData = async () => {
+      if (user?.email) {
+        const memberInfo = await getRelatedMember(user.email);
+        setMemberData(memberInfo);
+        console.log("Member Data:", memberInfo);
+      }
+    };
+    
+    fetchMemberData();
+  }, [user, getRelatedMember]);
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -136,8 +156,8 @@ const Dashboard = () => {
         <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-[#8E552C]">
           <div></div>
           <div className="flex items-center gap-5 text-black">
-            <p>Hi! Admin</p>
-            <button className="border rounded-full text-sm px-4 py-1">
+            <p>Hi! {memberData?.name}</p>
+            <button className="border rounded-full text-sm px-4 py-1" onClick={handleLogout}>
               Logout
             </button>
           </div>

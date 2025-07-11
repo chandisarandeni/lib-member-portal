@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useContext, useEffect } from 'react'
+import { AppContext } from '../context/AppContext'
 
 const initialProfile = {
   name: 'John Doe',
   email: 'john.doe@example.com',
-  password: '',
-  role: 'Student',
+  address: '',
+  phoneNumber: '',
+  role: 'Member',
   profilePic: 'https://randomuser.me/api/portraits/men/32.jpg'
 }
 
@@ -14,14 +16,17 @@ const MyProfile = () => {
   const [message, setMessage] = useState('')
   const [preview, setPreview] = useState(profile.profilePic)
   const fileInputRef = useRef(null)
+   const [memberData, setMemberData] = useState(null);
+   const {user, getRelatedMember} = useContext(AppContext)
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
+    console.log(`Field changed: ${name} = ${value}`);
     setProfile(prev => ({
       ...prev,
       [name]: value
-    }))
-  }
+    }));
+  };
 
   const handleEdit = () => setEditing(true)
 
@@ -31,6 +36,40 @@ const MyProfile = () => {
     setEditing(false)
     setMessage('')
   }
+
+  
+    useEffect(() => {
+      const fetchMemberData = async () => {
+        if (user?.email) {
+          const memberInfo = await getRelatedMember(user.email);
+          setMemberData(memberInfo);
+          console.log("Member Data:", memberInfo);
+          
+          // Update profile with member data if available
+          if (memberInfo) {
+            console.log("Member Data:", memberInfo);
+            console.log("Phone from memberInfo:", memberInfo.phone);
+            console.log("PhoneNumber from memberInfo:", memberInfo.phoneNumber);
+            
+            setProfile(prev => ({
+              ...prev,
+              name: memberInfo.name || prev.name,
+              email: memberInfo.email || user.email || prev.email,
+              address: memberInfo.address || prev.address,
+              phoneNumber: memberInfo.phoneNumber || memberInfo.phone || '',
+            }));
+          } else if (user?.email) {
+            // If no member data but user is logged in, at least show their email
+            setProfile(prev => ({
+              ...prev,
+              email: user.email
+            }));
+          }
+        }
+      };
+      
+      fetchMemberData();
+    }, [user, getRelatedMember]);
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -112,8 +151,8 @@ const MyProfile = () => {
                 className="hidden"
                 disabled={!editing}
               />
-              <h3 className="text-xl font-semibold text-gray-800 mb-1">{profile.name}</h3>
-              <p className="text-gray-500 text-sm">{profile.role}</p>
+              <h3 className="text-xl font-semibold text-gray-800 mb-1">{memberData?.name || profile.name}</h3>
+              <p className="text-gray-500 text-sm">{memberData?.membershipType || memberData?.role || profile.role || 'Member'}</p>
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
@@ -169,7 +208,7 @@ const MyProfile = () => {
                     </div>
                   </div>
 
-                  {/* Email */}
+                  {/* Email - Read Only */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                     <div className="relative">
@@ -177,14 +216,8 @@ const MyProfile = () => {
                         type="email"
                         name="email"
                         value={profile.email}
-                        onChange={handleChange}
-                        disabled={!editing}
-                        className={`w-full px-4 py-3 border rounded-lg transition-all ${
-                          editing 
-                            ? 'border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
-                            : 'border-gray-200 bg-gray-50 text-gray-600'
-                        }`}
-                        required
+                        disabled
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,46 +228,52 @@ const MyProfile = () => {
                   </div>
                 </div>
 
-                {/* Password */}
+                {/* Address */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                   <div className="relative">
-                    <input
-                      type="password"
-                      name="password"
-                      value={profile.password}
+                    <textarea
+                      name="address"
+                      value={profile.address}
                       onChange={handleChange}
                       disabled={!editing}
+                      rows={3}
+                      className={`w-full px-4 py-3 border rounded-lg transition-all resize-none ${
+                        editing 
+                          ? 'border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
+                          : 'border-gray-200 bg-gray-50 text-gray-600'
+                      }`}
+                      placeholder={editing ? "Enter your address" : "No address provided"}
+                    />
+                    <div className="absolute top-3 right-3">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={profile.phoneNumber || ''}
+                      onChange={handleChange}
+                      disabled={!editing}
+                      placeholder={editing ? "Enter your phone number" : "No phone number provided"}
                       className={`w-full px-4 py-3 border rounded-lg transition-all ${
                         editing 
                           ? 'border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent' 
                           : 'border-gray-200 bg-gray-50 text-gray-600'
                       }`}
-                      placeholder={editing ? "Enter new password" : "••••••••"}
                     />
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                  </div>
-                  {editing && <p className="text-xs text-gray-500 mt-1">Leave blank to keep current password</p>}
-                </div>
-
-                {/* Role */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="role"
-                      value={profile.role}
-                      disabled
-                      className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                     </div>
                   </div>

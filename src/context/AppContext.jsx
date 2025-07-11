@@ -61,6 +61,25 @@ const ContextProvider = ({ children }) => {
         localStorage.removeItem('isAuthenticated');
     };
 
+    const getRelatedMember = async (email) => {
+        try {
+            const allMembers = await axios.get(`http://localhost:8080/api/v1/members`);
+            const memberData = allMembers.data.find(member => member.email === email);
+            if (memberData) {
+                return {
+                    email: memberData.email,
+                    name: memberData.name,
+                    phone: memberData.phoneNumber,
+                    address: memberData.address,
+                };
+                
+            }
+        } catch (error) {
+            console.error("Error fetching member data:", error);
+            return null;
+        }
+    }
+
 
     useEffect(() => {
     // Only fetch by genre if selectedType is not set and genre is set and not "All Genres"
@@ -143,7 +162,7 @@ const fetchPopularBooks = async () => {
 
 
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember}}>
             {children}
         </AppContext.Provider>
     );
