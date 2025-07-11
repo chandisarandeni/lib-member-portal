@@ -1,5 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from 'react'
 import { AppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
 
 const initialProfile = {
   name: 'John Doe',
@@ -13,11 +14,10 @@ const initialProfile = {
 const MyProfile = () => {
   const [profile, setProfile] = useState(initialProfile)
   const [editing, setEditing] = useState(false)
-  const [message, setMessage] = useState('')
   const [preview, setPreview] = useState(profile.profilePic)
   const fileInputRef = useRef(null)
    const [memberData, setMemberData] = useState(null);
-   const {user, getRelatedMember} = useContext(AppContext)
+   const {user, getRelatedMember, editMember} = useContext(AppContext)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,10 +31,20 @@ const MyProfile = () => {
   const handleEdit = () => setEditing(true)
 
   const handleCancel = () => {
-    setProfile(initialProfile)
-    setPreview(initialProfile.profilePic)
-    setEditing(false)
-    setMessage('')
+    // Reset to the current member data instead of initial profile
+    if (memberData) {
+      setProfile(prev => ({
+        ...prev,
+        name: memberData.name || prev.name,
+        email: memberData.email || user.email || prev.email,
+        address: memberData.address || prev.address,
+        phoneNumber: memberData.phoneNumber || memberData.phone || '',
+      }));
+    } else {
+      setProfile(initialProfile);
+    }
+    setPreview(initialProfile.profilePic);
+    setEditing(false);
   }
 
   
@@ -48,6 +58,7 @@ const MyProfile = () => {
           // Update profile with member data if available
           if (memberInfo) {
             console.log("Member Data:", memberInfo);
+            console.log("Member ID field:", memberInfo.id, memberInfo.memberId, memberInfo.member_id);
             console.log("Phone from memberInfo:", memberInfo.phone);
             console.log("PhoneNumber from memberInfo:", memberInfo.phoneNumber);
             
@@ -71,11 +82,75 @@ const MyProfile = () => {
       fetchMemberData();
     }, [user, getRelatedMember]);
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    setEditing(false)
-    setMessage('Profile updated successfully!')
-    // Here you would usually send the updated profile to your backend
+    
+    try {
+      // Check if memberData exists and has an ID
+      if (!memberData) {
+        toast.error('Member data not found. Please refresh the page.', {
+          duration: 4000,
+          position: 'top-center',
+        });
+        return;
+      }
+
+      // Try different possible ID field names
+      const memberId = memberData.id || memberData.memberId || memberData.member_id;
+      
+      if (!memberId) {
+        console.error('No member ID found in memberData:', memberData);
+        toast.error('Member ID not found. Please contact support.', {
+          duration: 4000,
+          position: 'top-center',
+        });
+        return;
+      }
+
+      // Prepare the data to send to the backend (without the ID)
+      const updatedData = {
+        name: profile.name,
+        address: profile.address,
+        phoneNumber: profile.phoneNumber || profile.phone, // Handle both field names
+        email: profile.email // Include email for identification
+      };
+      
+      console.log("Saving profile data:", updatedData);
+      console.log("Member ID being used:", memberId);
+      
+      // Call editMember function from AppContext with separate parameters
+      const result = await editMember(memberId, updatedData);
+      
+      if (result) {
+        setEditing(false);
+        toast.success('Profile updated successfully!', {
+          duration: 3000,
+          position: 'top-center',
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontWeight: '500',
+          },
+        });
+        
+        // Optionally refresh member data after successful update
+        const updatedMemberInfo = await getRelatedMember(user.email);
+        if (updatedMemberInfo) {
+          setMemberData(updatedMemberInfo);
+        }
+      } else {
+        toast.error('Failed to update profile. Please try again.', {
+          duration: 4000,
+          position: 'top-center',
+        });
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast.error('Error updating profile. Please try again.', {
+        duration: 4000,
+        position: 'top-center',
+      });
+    }
   }
 
   const handlePicChange = (e) => {
@@ -295,17 +370,6 @@ const MyProfile = () => {
                     >
                       Save Changes
                     </button>
-                  </div>
-                )}
-
-                {message && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="text-green-800 text-sm font-medium">{message}</span>
-                    </div>
                   </div>
                 )}
               </form>

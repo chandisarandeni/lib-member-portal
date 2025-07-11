@@ -61,12 +61,25 @@ const ContextProvider = ({ children }) => {
         localStorage.removeItem('isAuthenticated');
     };
 
+     const editMember  = async (memberId, updatedData) => {
+            try {
+                const url = `http://localhost:8080/api/v1/members/${memberId}`;
+                const response = await axios.put(url, updatedData);
+                console.log("Member updated successfully:", response.data);
+                return response.data;
+            } catch (error) {
+                console.error("Error updating member:", error);
+                throw error;
+            }
+        }
+
     const getRelatedMember = async (email) => {
         try {
             const allMembers = await axios.get(`http://localhost:8080/api/v1/members`);
             const memberData = allMembers.data.find(member => member.email === email);
             if (memberData) {
                 return {
+                    id: memberData.memberId,
                     email: memberData.email,
                     name: memberData.name,
                     phone: memberData.phoneNumber,
@@ -162,7 +175,7 @@ const fetchPopularBooks = async () => {
 
 
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember}}>
             {children}
         </AppContext.Provider>
     );
