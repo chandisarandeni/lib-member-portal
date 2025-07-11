@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import Main from "../Main";
 import AddBooks from "../AddBooks";
 import AddUser from "../AddUser";
@@ -13,6 +13,7 @@ import Favorites from "../Favorites";
 import MyProfile from "../MyProfile";
 import Help from "../Help";
 import { assets } from "../../assets/assests";
+import { AppContext } from "../../context/AppContext";
 
 const Dashboard = () => {
   const dashboardicon = (
@@ -74,13 +75,15 @@ const Dashboard = () => {
   );
 
   const sidebarLinks = [
-    { name: "Dashboard", path: "/", icon: dashboardicon },
-    { name: "My Books", path: "/all-books", icon: overviewicon },
-    { name: "profile", path: "/profile", icon: chaticon },
-    { name: "Favorites", path: "/favorites", icon: chaticon },
-    { name: "library", path: "/library", icon: chaticon },
-    { name: "Help", path: "/help", icon: chaticon },
+    { name: "Dashboard", path: "/dashboard", icon: dashboardicon },
+    { name: "My Books", path: "/dashboard/all-books", icon: overviewicon },
+    { name: "profile", path: "/dashboard/profile", icon: chaticon },
+    { name: "Favorites", path: "/dashboard/favorites", icon: chaticon },
+    { name: "library", path: "/dashboard/library", icon: chaticon },
+    { name: "Help", path: "/dashboard/help", icon: chaticon },
   ];
+
+  const {user, logout} = useContext(AppContext)
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -111,7 +114,7 @@ const Dashboard = () => {
                                 : "hover:bg-gray-100/90 border-white text-gray-700"
                             }`
               }
-              end={item.path === "/"}
+              end={item.path === "/dashboard"}
             >
               {item.icon}
               <p className="md:block hidden text-center">{item.name}</p>
@@ -122,6 +125,13 @@ const Dashboard = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
+
+        <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-3">
+          <p className="text-gray-700 text-sm">
+            Welcome back, <span className="font-semibold text-[#8E552C]">{user?.email || 'User'}</span>! 
+            {user?.email && <span className="text-gray-500 ml-2">Logged in successfully</span>}
+          </p>
+        </div>
         {/* Top Header for all screens */}
         <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-[#8E552C]">
           <div></div>
@@ -135,7 +145,7 @@ const Dashboard = () => {
         {/* Main Dashboard Content */}
         <div className="flex-1 overflow-auto">
           <Routes>
-            <Route path="" element={<Main />} />
+            <Route path="/" element={<Main />} />
             <Route path="/add-books" element={<AddBooks />} />
             <Route path="/add-user" element={<AddUser />} />
             <Route path="/edit-book/:id" element={<EditBookModal />} />

@@ -9,6 +9,57 @@ const ContextProvider = ({ children }) => {
     const[books, setBooks] = useState([])
     const [selectedGenre, setSelectedGenre] = useState("");
     const [selectedType, setSelectedType] = useState("");
+    const [borrowedBooks, setBorrowedBooks] = useState([]);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem("user");
+        return savedUser ? JSON.parse(savedUser) : null;
+    })
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return localStorage.getItem("isAuthenticated") === "true";
+    });
+
+    // Login function
+    const login = async (email, password) => {
+        try {
+            const response = await axios.post("http://localhost:8080/api/v1/members/auth/login", {
+                email,
+                password
+            });
+            
+            if (response.data === true) {
+                // Create user object with email
+                const userData = { email };
+                
+                // Update state
+                setUser(userData);
+                setIsAuthenticated(true);
+                
+                // Store in localStorage
+                localStorage.setItem('user', JSON.stringify(userData));
+                localStorage.setItem('isAuthenticated', 'true');
+                
+                return { success: true, message: "Login successful" };
+            } else {
+                return { success: false, message: "Invalid credentials" };
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            return { 
+                success: false, 
+                message: error.response?.data?.message || "Login failed" 
+            };
+        }
+    };
+
+    // Logout function
+    const logout = () => {
+        setUser(null);
+        setIsAuthenticated(false);
+        
+        // Clear localStorage
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+    };
 
 
     useEffect(() => {
@@ -75,9 +126,24 @@ const fetchPopularBooks = async () => {
         }
     }
 
+    useEffect(() => {
+        const fetchBorrowedBooks = async () => {
+        try {
+            const url = "http://localhost:8080/api/v1/borrowings";
+            const response = await axios.get(url);
+            setBorrowedBooks(response.data);
+            console.log(response.data)
+        } catch (error) {
+            setBorrowedBooks([]);
+            console.error("Error fetching borrowed books:", error);
+        }
+        fetchBorrowedBooks()
+    }
+    }, [borrowedBooks])
+
 
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout}}>
             {children}
         </AppContext.Provider>
     );

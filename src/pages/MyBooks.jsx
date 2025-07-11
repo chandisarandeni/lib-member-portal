@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { AppContext } from '../context/AppContext'
+
 
 const booksData = [
   {
@@ -39,11 +41,12 @@ const statusTabs = ['All', 'Borrowed', 'Returned', 'Overdue']
 
 const MyBooks = () => {
   const [selectedTab, setSelectedTab] = useState('All')
+  const {borrowedBooks} = useContext(AppContext)
 
   const filteredBooks =
     selectedTab === 'All'
-      ? booksData
-      : booksData.filter(book => book.status === selectedTab)
+      ? borrowedBooks
+      : borrowedBooks.filter(book => book.status === selectedTab)
 
   return (
     <div className="min-h-screen bg-[#f8f6ed] px-8 py-8">
@@ -86,7 +89,7 @@ const MyBooks = () => {
                 </tr>
               )}
               {filteredBooks.map(book => (
-                <tr key={book.id}>
+                <tr key={book.bookId}>
                   <td className="px-4 py-3 text-sm text-gray-900">{book.title}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{book.author}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{book.borrowDate}</td>
@@ -94,17 +97,17 @@ const MyBooks = () => {
                     {book.returnDate ? book.returnDate : <span className="text-gray-400">--</span>}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {book.status === 'Returned' && (
+                    {book.returnStatus === 'Returned' && (
                       <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
                         Returned
                       </span>
                     )}
-                    {book.status === 'Borrowed' && (
+                    {book.returnStatus === 'Borrowed' && (
                       <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
                         Borrowed
                       </span>
                     )}
-                    {book.status === 'Overdue' && (
+                    {book.returnStatus === 'Overdue' && (
                       <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
                         Overdue
                       </span>

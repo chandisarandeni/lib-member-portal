@@ -19,7 +19,7 @@ const AllBooks = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Genres')
   const [currentPage, setCurrentPage] = useState(1)
   const booksPerPage = 8
-  const {books, setSelectedGenre, setSelectedType} = useContext(AppContext)
+  const {books, setSelectedGenre, setSelectedType, user} = useContext(AppContext)
   const navigate = useNavigate()
 
   const filteredBooks = books.filter(book => {
