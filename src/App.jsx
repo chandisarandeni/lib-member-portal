@@ -21,6 +21,7 @@ const App = () => {
         <Route path="/" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/api/v1/members/reset-password" element={<ResetPassword />} />
       </Routes>
     </div>
   );

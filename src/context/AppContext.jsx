@@ -262,9 +262,19 @@ const fetchPopularBooks = async () => {
         }
     }
 
+    const getMemberByEmail = async (email) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/v1/members?email=${email}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching member by email:", error);
+            throw error;
+        }
+    }
+
 
     return (
-        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember, getBorrowing, sendResetEmail}}>
+        <AppContext.Provider value={{books, setSelectedGenre, setSelectedType, fetchPopularBooks, borrowedBooks, user, isAuthenticated, login, logout, getRelatedMember, editMember, getBorrowing, sendResetEmail, getMemberByEmail}}>
             {children}
         </AppContext.Provider>
     );
