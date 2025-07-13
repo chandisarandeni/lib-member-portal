@@ -5,6 +5,7 @@ import ResetPassword from "./pages/ResetPassword";
 import { Route, Routes } from "react-router-dom";
 import LoginPage from './pages/LoginPage'
 import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
@@ -17,7 +18,14 @@ const App = () => {
         }}
       />
       <Routes>
-        <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route 
+          path="/dashboard/*" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
