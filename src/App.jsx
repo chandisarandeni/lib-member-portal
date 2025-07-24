@@ -3,7 +3,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { Route, Routes } from "react-router-dom";
-import LoginPage from './pages/LoginPage'
+import LoginPage from "./pages/LoginPage";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -18,18 +18,21 @@ const App = () => {
         }}
       />
       <Routes>
-        <Route 
-          path="/dashboard/*" 
+        <Route
+          path="/dashboard/*"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route path="/" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/api/v1/members/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/api/v1/members/reset-password"
+          element={<ResetPassword />}
+        />
       </Routes>
     </div>
   );
